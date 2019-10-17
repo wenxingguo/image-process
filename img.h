@@ -1,4 +1,3 @@
-#pragma once
 #ifndef IMG_H
 #define IMG_H
 
@@ -124,9 +123,7 @@ namespace process {
 
 	void sebol(CV_IMAGE& img, CV_IMAGE& outimg, CONV_CORE& sebol_core_x, CONV_CORE& sebol_core_y);
 
-	void fft_gray_img(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg);//, double (*f)(double));
-
-	double shift_log(double);
+	void fft_gray_img(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg);
 
 	void transfer_gray_value(CV_IMAGE& in_out_img, double(*f)(double));
 
@@ -172,6 +169,11 @@ namespace CORE {
 	double gauss(int x, int y, double sigma);
 
 	double* gauss_core_data(int size, int channels, double sigma);
+	
+	double* ILPF_CORE(int edge_size, int channels, double d);
+
+
+
 
 #ifdef GAUSS_CORE_SIZE
 	double* temp_gauss_data = gauss_core_data(GAUSS_CORE_SIZE, 3, 0.8);
@@ -186,6 +188,21 @@ namespace CORE {
 	CONV_CORE sebol_core_x(temp_core_sebol_x, temp_core_sebol_x, temp_core_sebol_x);
 	CONV_CORE sebol_ceor_y(temp_core_sebol_y, temp_core_sebol_y, temp_core_sebol_y);
 #endif
+
+#ifdef ILPF_SIZE
+	double* ILPF_data = ILPF_CORE(ILPF_SIZE, 1, 10);
+	CONV_CORE ILPF(ILPF_data, ILPF_SIZE, 1);
+#endif
+
+#ifdef BLPF_SIZE
+#endif
+
+#ifdef GLPF_SIZE
+#endif
+
+#ifdef IHPF_SIZE
+#endif
+
 }
 
 #endif

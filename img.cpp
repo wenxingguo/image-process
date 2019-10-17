@@ -560,13 +560,13 @@ void _fft_shift(CV_IMAGE& img) {
 	process::stick_on_domain(img4, img, 1, 1);
 }
 
-void process::fft_gray_img(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg) {//, double (*f)(double)){
+void process::fft_gray_img(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg) {
 	fftw_complex* in, * out;
 	fftw_plan plan_fftw_img;
 	int size = gray_img.cols * gray_img.rows;
 	in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * size);
 	out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * size);
-
+	
 	for (int i = 0; i < size; ++i) {
 		in[i][0] = gray_img.data[i];
 		in[i][1] = 0;
@@ -574,6 +574,7 @@ void process::fft_gray_img(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg) {//, doubl
 
 	plan_fftw_img = fftw_plan_dft_2d(gray_outimg.rows, gray_outimg.cols, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
 	fftw_execute(plan_fftw_img);
+
 	double min = 0, max = 0, * temp = new double[size];
 
 	for (int i = 0; i < size; ++i) {
@@ -585,6 +586,7 @@ void process::fft_gray_img(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg) {//, doubl
 
 	for (int i = 0; i < size; ++i) {
 		gray_outimg.data[i] = (temp[i] - min) / max * 255;
+		//std::cout << gray_img.data[i] << std::endl;
 	}
 	_fft_shift(gray_outimg);
 	delete[] temp;
@@ -618,6 +620,30 @@ double* CORE::gauss_core_data(int size, int channels, double siamg) {
 	}
 	for (int j = 0; j < size * size * channels; ++j) {
 		data[j] = data[j] / sum;
+	}
+	return data;
+}
+
+double* CORE::ILPF_CORE(int edge_size, int channels, double d) {
+	double* data = new double[edge_size * edge_size * channels]();
+	int mid = edge_size / 2;
+	for (int x = 1; x <= edge_size; ++x) {
+		for (int y = 1; y <= edge_size; ++y) {
+			for (int j = 0; j < channels; ++j) {
+				if (x <= mid && y <= mid) {
+					if (x * x + y * y < d * d) data[((y - 1) * edge_size + x - 1) * channels + j] = 1;
+				}
+				if (y <= mid && x > mid) {
+					if ((edge_size -x) * (edge_size-x) + y * y < d * d) data[((y - 1) * edge_size + x - 1) * channels + j] = 1;
+				}
+				if (y > mid&& x <= mid) {
+					if (x * x + (edge_size-y) * (edge_size-y) < d * d) data[((y - 1) * edge_size + x - 1) * channels + j] = 1;
+				}
+				if (y > mid&& x > mid) {
+					if ((edge_size-x) * (edge_size-x) + (edge_size-y) * (edge_size-y) < d * d) data[((y - 1) * edge_size + x - 1) * channels + j] = 1;
+				}
+			}
+		}
 	}
 	return data;
 }
