@@ -595,6 +595,48 @@ void process::fft_gray_img(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg) {
 	fftw_free(out);
 }
 
+void _multiplay(fftw_complex* f_data, CONV_CORE& core) {
+	for (int i = 0; i < core.cols * core.rows * core.channels; ++i) {
+		f_data[i][0] *= core.data[i];
+		f_data[i][1] *= core.data[i];
+	}
+}
+
+void process::f_domain_filter(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg, CONV_CORE& core) {
+	fftw_complex* in, * temp_out, * out;
+	fftw_plan first_plan, second_plan;
+	int size = gray_img.cols * gray_img.rows * gray_img.channels;
+	in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * size);
+	temp_out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * size);
+	out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * size);
+
+	//准备数据
+
+	for (int i = 0; i < size; ++i) {
+		in[i][0] = gray_img.data[i];
+		in[i][1] = 0;
+	}
+	//计划
+
+	first_plan = fftw_plan_dft_2d(gray_img.rows, gray_img.cols, in, temp_out, FFTW_FORWARD, FFTW_ESTIMATE);
+	second_plan = fftw_plan_dft_2d(gray_img.rows, gray_img.cols, temp_out, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+
+	fftw_execute(first_plan);
+	//滤波
+
+	_multiplay(temp_out, core);
+
+	fftw_execute(second_plan);
+	for (int i = 0; i < size; ++i) {
+		gray_outimg.data[i] = std::sqrt(out[i][0] * out[i][0] + out[i][1] * out[i][1]) / size;
+	}
+	fftw_free(in);
+	fftw_free(out);
+	fftw_free(temp_out);
+	fftw_destroy_plan(first_plan);
+	fftw_destroy_plan(second_plan);
+}
+
 void process::transfer_gray_value(CV_IMAGE& img, double(*f)(double)) {
 	for (int i = 0; i < img.cols * img.rows; ++i) {
 		img.data[i] = f(img.data[i]);

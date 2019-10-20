@@ -1,9 +1,11 @@
+#define ILPF_SIZE 512
+#define ILPF_D_SIZE 200
 #include "img.h"
 
-double f(uchar x, uchar n = 50) {
+/*double f(uchar x, uchar n = 50) {
 	if (x >= n) return (x - n) * (x - n) * (255.0 / (255.0 - n) / (255.0 - n));
 	return 0;
-}
+}*/
 
 int main(int argc, char** argv) {
 	if (!argv[1]) {
@@ -20,10 +22,9 @@ int main(int argc, char** argv) {
 
 	CV_IMAGE outimg(img);
 
-	process::fft_gray_img(img, outimg);
-	auto func = [](double x) -> double { return f(x, 100); };
+	process::f_domain_filter(img, outimg, CORE::ILPF);
+	//auto func = [](double x) -> double { return f(x, 100); };
 
-	process::transfer_gray_value(outimg, func);
 	outimg.add_show_list();
 	img.add_show_list();
 	//outimg.imgsave("fft_tem.jpeg");

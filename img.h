@@ -125,6 +125,8 @@ namespace process {
 
 	void fft_gray_img(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg);
 
+	void f_domain_filter(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg, CONV_CORE& core);
+
 	void transfer_gray_value(CV_IMAGE& in_out_img, double(*f)(double));
 
 };
@@ -190,7 +192,10 @@ namespace CORE {
 #endif
 
 #ifdef ILPF_SIZE
-	double* ILPF_data = ILPF_CORE(ILPF_SIZE, 1, 10);
+#ifndef ILPF_D_SIZE
+#define ILPF_D_SIZE 10
+#endif
+	double* ILPF_data = ILPF_CORE(ILPF_SIZE, 1, ILPF_D_SIZE);
 	CONV_CORE ILPF(ILPF_data, ILPF_SIZE, 1);
 #endif
 
