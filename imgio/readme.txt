@@ -1,0 +1,3 @@
+gdiplus
+
+jpeg
