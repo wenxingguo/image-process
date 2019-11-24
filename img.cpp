@@ -223,7 +223,7 @@ void process::rgb2gray(CV_IMAGE& img, CV_IMAGE& outimg) {
 
 int* process::hist(CV_IMAGE& img) {
 	//r > g > b
-	int* array = new int[256 * img.channels](); //ÇĞ¼Ç³õÊ¼»¯
+	int* array = new int[256 * img.channels](); //åˆ‡è®°åˆå§‹åŒ–
 	//
 	//
 	int size = img.cols * img.rows;
@@ -233,7 +233,7 @@ int* process::hist(CV_IMAGE& img) {
 		}
 	}
 	for (int i = 1; i < 256; ++i) {
-		//ÀÛ¼ÓÆğÀ´£¬µ±Ç°Î»ÖÃÖµÊÇÇ°ÃæÈ«²¿ÖµµÄºÍ
+		//ç´¯åŠ èµ·æ¥ï¼Œå½“å‰ä½ç½®å€¼æ˜¯å‰é¢å…¨éƒ¨å€¼çš„å’Œ
 		for (int j = 0; j < img.channels; ++j) {
 			array[i + j * 256] += array[i - 1 + j * 256];
 		}
@@ -243,7 +243,7 @@ int* process::hist(CV_IMAGE& img) {
 
 void process::hist_equa(CV_IMAGE& img, CV_IMAGE& outimg) {
 	int size = img.cols * img.rows;
-	int* hist_array = process::hist(img); //¼ÇµÃÊÍ·ÅÄÚ´æ
+	int* hist_array = process::hist(img); //è®°å¾—é‡Šæ”¾å†…å­˜
 	for (int i = 0; i < size; ++i) {
 		for (int j = 0; j < img.channels; ++j) {
 			outimg.data[i * outimg.channels + j] = 255.0 / size * hist_array[img.data[i * img.channels + j] + j * 256];
@@ -494,7 +494,7 @@ double* _multplay(CV_IMAGE& temp_domain_img, CONV_CORE& core) {
 }
 
 void process::convolute(CV_IMAGE& img, CV_IMAGE& outimg, CONV_CORE& core) {
-	//½ö´¦Àí·½ĞÎºË
+	//ä»…å¤„ç†æ–¹å½¢æ ¸
 	int domain_size = core.cols;
 	int edge_size = (domain_size - 1) / 2;
 	CV_IMAGE temp_domain_img(core);
@@ -610,19 +610,19 @@ void process::f_domain_filter(CV_IMAGE& gray_img, CV_IMAGE& gray_outimg, CONV_CO
 	temp_out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * size);
 	out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * size);
 
-	//×¼±¸Êı¾İ
+	//å‡†å¤‡æ•°æ®
 
 	for (int i = 0; i < size; ++i) {
 		in[i][0] = gray_img.data[i];
 		in[i][1] = 0;
 	}
-	//¼Æ»®
+	//è®¡åˆ’
 
 	first_plan = fftw_plan_dft_2d(gray_img.rows, gray_img.cols, in, temp_out, FFTW_FORWARD, FFTW_ESTIMATE);
 	second_plan = fftw_plan_dft_2d(gray_img.rows, gray_img.cols, temp_out, out, FFTW_BACKWARD, FFTW_ESTIMATE);
 
 	fftw_execute(first_plan);
-	//ÂË²¨
+	//æ»¤æ³¢
 
 	_multiplay(temp_out, core);
 
@@ -666,7 +666,7 @@ double* CORE::gauss_core_data(int size, int channels, double siamg) {
 	return data;
 }
 
-double* CORE::ILPF_CORE(int edge_size, int channels, double d) {
+double* CORE::ILPF_CORE(int edge_size, int channels, double d) { //ugly code
 	double* data = new double[edge_size * edge_size * channels]();
 	int mid = edge_size / 2;
 	for (int x = 1; x <= edge_size; ++x) {
